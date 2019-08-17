@@ -2,15 +2,23 @@
 # IMPORTS
 ########################################
 
+import readline
+
 import meta_data as meta
 import character_select as charsel
+import character as char
 
-import os
+########################################
+# VARIABLES
+########################################
+
+current_char = None
 
 ########################################
 # STATE
 ########################################
 
+SN_EXIT = -1
 SN_START = 0
 SN_CHARSEL = 1
 
@@ -32,12 +40,27 @@ def _p(output):
     print(output, end='')
 
 ########################################
+# INPUT
+########################################
+
+def _i(prompt=''):
+    try:
+        res = input(prompt)
+    except KeyboardInterrupt:
+        _p("\033[2J\033[1;1H")
+        exit()
+
+    readline.clear_history()
+
+    return res
+
+########################################
 # STATE-BASED FUNCTIONS
 ########################################
 
 def sn_start(state):
     _p(meta.NAME + " " + meta.VERSION_NAME + "\n\n")
-    input("Press enter to continue...")
+    _i("Press enter to continue...")
 
     state.set_state(SN_CHARSEL)
 
@@ -50,21 +73,38 @@ def sn_charsel(state):
     for i in range(len(charlist)):
         print(str(i+1) + ": " + charlist[i])
 
-    print()
+    if len(charlist) > 0:
+        print()
+
     _p("\033[35m")
     print(str(len(charlist)+1) + ": Create new character\033[0m\n")
 
     try:
-        ans = int(input("Which do you choose? "))
+        ans = int(_i("Which do you choose? "))
     except ValueError:
         ans = 0
 
     if ans < 1 or ans > len(charlist)+1:
         print("\033[2J\033[1;1H\033[1m> \033[32mReally? You can't even do that? Try again.\033[0m\n")
-        input("OK (Press enter)")
+        _i("OK (Press enter)")
         return
+    else:
+        # Valid choice
+        if ans < len(charlist)+1:
+            # Existing character
+            c = char.load_character(charlist[ans-1])
+            if c.error:
+                _p("\033[2J\033[1;1H\033[31m")
+                print("Internal Error: " + c.error)
+                print("In other words, the character \033[1m\033[4m" + charlist[ans-1] + "\033[0m\033[31m could not be found.\033[0m\n")
+                print("\033[1m\033[34m(i) If you have a character file with that name, move it into the same folder as this program.\033[0m\n")
+                print("\033[1m\033[34m(i) In the mean time, that entry will be deleted from the index of characters.\033[0m\n")
+                _i("Press enter to try again...")
+                return
 
-    state.set_state(-1)
+            current_char = c
+
+    #state.set_state(-1)
 
 ########################################
 # START(MAIN)
