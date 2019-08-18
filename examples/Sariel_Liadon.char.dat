@@ -1,0 +1,22 @@
+# THIS IS AN EXAMPLE FILE! If you do wish to play with this character, you may
+# move it into the same folder as the Python script `main.py`.
+
+name-Sariel Liadon
+
+_class_-Druid
+level-1
+background-???
+author-Katie
+race-Elf
+alignment-Chaotic Good
+experience_points-0
+
+strength-13
+dexterity-12
+constitution-8
+intelligence-8
+wisdom-19
+charisma-6
+
+inspiration-0
+proficiency_bonus-
