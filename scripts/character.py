@@ -5,6 +5,8 @@
 import os.path
 from os import path
 
+from types import *
+
 ########################################
 # CHARACTER
 ########################################
@@ -12,40 +14,26 @@ from os import path
 class Character:
     def __init__(self, name, error=None):
         self.error = error
-        self.author = None
-        self.name = name
 
-        self._class_ = None
-        self.level = None
-        self.background = None
-        self.race = None
-        self.alignment = None
-        self.experience_points = None
+        self.author_ = None
+        self.name_ = name
 
-        self.strength = None
-        self.dexterity = None
-        self.constitution = None
-        self.intelligence = None
-        self.wisdom = None
-        self.charisma = None
+        self.class_ = None
+        self.level_ = None
 
-        self.inspiration = None
-        self.proficiency_bonus = None
+        self.background_ = None
+        self.alignment_ = None
 
-        self.saving_throw_strength = None
-        self.saving_throw_dexterity = None
-        self.saving_throw_constitution = None
-        self.saving_throw_intelligence = None
-        self.saving_throw_wisdom = None
-        self.saving_throw_charisma = None
+        self.race_ = None
+        self.xp_ = None
 
-        self.acrobatics = None
-        self.animal_handling = None
-        self.arcana = None
-        self.athletics = None
-        self.deception = None
-        self.history = None
-        self.insight = None
+        self.strength = Modifier()
+
+    def __repr__(self):
+        result  = f'{self.name_} ({self.author_}\'s Character)\n'
+        result += f'Class: {self.class_}'
+
+        return result
 
 ########################################
 # SAVE CHARACTER
@@ -72,7 +60,7 @@ def parse_file(name, text):
             tok = ""
             continue
         elif c in "\r\n" and (attr_name is not None and tok != "") and not ignore_line:
-            setattr(res, attr_name, tok)
+            setattr(res, attr_name + "_", tok)
             tok = ""
             attr_name = None
             continue

@@ -21,6 +21,7 @@ current_char = None
 SN_EXIT = -1
 SN_START = 0
 SN_CHARSEL = 1
+SN_CHARCREATE = 2
 
 class State:
     def __init__(self, state_name):
@@ -103,8 +104,70 @@ def sn_charsel(state):
                 return
 
             current_char = c
+        elif ans == len(charlist)+1:
+            # Create new
+            state.set_state(SN_CHARCREATE)
+            return
 
-    #state.set_state(-1)
+def sn_charcreate(state, inchar=None, last=0, author=None):
+    character = inchar or char.Character(None)
+
+    if last <= 0:
+        author = _i("What is your name? ")
+        if author is "":
+            print("\033[2J\033[1;1H\033[1m> \033[32mUgh. C'mon, really?\033[0m\n")
+            _i("OK (Press enter)")
+            return char.Character(None), last, author
+
+        last += 1
+
+    _p("\033[2J\033[1;1H")
+
+    if last <= 1:
+        name = _i("What is your character's name? ")
+        if name is not "":
+            character.name_ = name
+            character.author_ = author
+        else:
+            print("\033[2J\033[1;1H\033[1m> \033[32mUgh. C'mon, really?\033[0m\n")
+            _i("OK (Press enter)")
+            ch = char.Character(None)
+            ch.author_ = author
+            return ch, last, author
+
+        last += 1
+
+    _p("\033[2J\033[1;1H")
+
+    if last <= 2:
+        classes = ["Barbarian", "Bard", "Cleric"]
+
+        for i in range(len(classes)):
+            print("\033[1m\033[34m%i: %s\033[0m" % (i+1, classes[i]))
+
+        ans = _i("\nPlease pick the class you would like: ")
+
+        try:
+            ans = int(ans)
+        except ValueError:
+            ans = 0
+
+        if ans < 1 or ans > len(classes):
+            print("\033[2J\033[1;1H\033[1m> \033[32mUgh. C'mon, really?\033[0m\n")
+            _i("OK (Press enter)")
+            return character, last, author
+
+        character.class_ = classes[ans-1]
+
+        last += 1
+
+    if last <= 3:
+        pass
+
+    print(character)
+    while True:
+        pass
+    state.set_state(-1)
 
 ########################################
 # START(MAIN)
@@ -114,6 +177,7 @@ def main():
     state = State(SN_START)
     _p("\033[2J\033[1;1H")
 
+    ch, last, auth = (char.Character(None), 0, None)
     while True:
 
         # App state checks
@@ -123,6 +187,10 @@ def main():
             continue
         elif state.at_state(SN_CHARSEL):
             sn_charsel(state)
+            _p("\033[2J\033[1;1H")
+            continue
+        elif state.at_state(SN_CHARCREATE):
+            ch, last, auth = sn_charcreate(state, ch, last, auth)
             _p("\033[2J\033[1;1H")
             continue
         else:
